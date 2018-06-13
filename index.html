@@ -1,0 +1,51 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Es día de helado de fruta?</title>
+
+  <link rel="shortcut icon" href="/logo.png" />
+
+  <meta name="twitter:site" content="@FloriusWasTaken">
+  <meta name="twitter:creator" content="@FloriusWasTaken">
+  <meta name="twitter:card" content="summary">
+  <meta property="og:site_name" content="Es día de helado de fruta?" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://es-dia-de-helado-de-fruta.github.com" />
+  <meta property="og:title" content="Es día de helado de fruta?" />
+  <meta property="og:image" content="/logo.png" />
+
+  <style type="text/css">
+    html, body {height: 100%;}
+    body {text-align: center;}
+  </style>
+
+<body>
+  <div id="app">
+      <noscript>no</noscript>
+      <h1>{{mensajeDiaDeFruta}}</h1>
+  </div>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
+  <script type="text/javascript">
+    new Vue({
+        el: '#app',
+        data: {
+            diaDeFruta: false
+        },
+        created: function(){
+            var rng = new Math.seedrandom(new Date().getDate());
+            this.diaDeFruta = rng() > 0.5 ;
+        },
+        computed: {
+            mensajeDiaDeFruta: function(){
+                return this.diaDeFruta ? "Si!!" : "no";
+            }
+        }
+    });
+  </script>
+</body>
+</html>
