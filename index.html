@@ -6,6 +6,8 @@
   <title>Es día de helado de fruta?</title>
 
   <link rel="shortcut icon" href="logo.png" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:100,300,500" rel="stylesheet">
 
   <meta name="twitter:site" content="@FloriusWasTaken">
   <meta name="twitter:creator" content="@FloriusWasTaken">
@@ -17,32 +19,148 @@
   <meta property="og:image" content="logo.png" />
 
   <style type="text/css">
-    html, body {height: 100%;}
-    body {text-align: center;}
+    html, body {
+        height: 100%;
+    }
+    body {
+        background-image: linear-gradient(#9d6c4c 33.33%, #fefddf 33.33%, #fefddf 66.66%, #fa8cb1 66.66%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    #app {
+        background-color: whitesmoke;
+        box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.4);
+        margin: 50px;
+        height: 100%;
+    }
+    #resultado {
+        font-size: 10em;
+        font-family: "Poppins", sans-serif;
+        text-align: center;
+        -webkit-margin-after: 0
+    }
+    #termometro.frio:after {
+        content:"\f2cb";
+        color:blue;
+    }
+    #termometro.medio:after {
+        content:"\f2c9";
+        color:BlueViolet;
+    }
+    #termometro.calor:after {
+        content:"\f2c7";
+        color:red;
+    }
+    #termometro {
+        font-family:FontAwesome;
+        font-size:50px;
+        vertical-align: middle;
+    }
+    #twitter {
+        width: 500px;
+        height: 40%;
+        margin: 0px 25%;
+        overflow-y: scroll;
+        margin: 0 auto;
+    }
+    #twitter.activo {
+        transition: opacity 5s ease-out;
+    }
+    #twitter.oculto {
+        opacity: 0;
+    }
+    footer {
+        background-color: black;
+        position: absolute;
+        bottom: 0;
+        text-align: center;
+        color: beige;
+        right: 50px;
+        left: 50px;
+        line-height: 3em;
+    }
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
   </style>
 
 <body>
-  <div id="app">
+    <div id="app">
       <noscript>no</noscript>
-      <h1>{{mensajeDiaDeFruta}}</h1>
-  </div>
+      <p id="resultado" :title="temperaturaEnCelcius">
+        {{mensajeDiaDeFruta}}
+        <span id="termometro" :class="[clase]"></span>
+      </p>
 
+      <div id="twitter" :class="{ oculto: !mostrarTwitter,  activo: mostrarTwitter }">
+            <blockquote class="twitter-tweet"><p lang="es" dir="ltr">En otro capitulo de la historia de helados y personas incomplasibles. Le compré fruta + fruta y... &quot;no era día de helado de fruta&quot; 💢<br>Así que me armé una app para ayudarme: <a href="https://t.co/WEgBJ9xQDt">https://t.co/WEgBJ9xQDt</a></p>&mdash; Joaco (@FloriusWasTaken) <a href="https://twitter.com/FloriusWasTaken/status/1006876874721644544?ref_src=twsrc%5Etfw">June 13, 2018</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      </div>
+
+      <a href="https://github.com/jazcarate/es-dia-de-helado-de-fruta">
+        <footer id="footer" class="">
+          Florius
+        </footer>
+      </a>
+    </div>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
   <script type="text/javascript">
     new Vue({
         el: '#app',
         data: {
-            diaDeFruta: false
+            diaDeFruta: false,
+            clase: 'frio',
+            temperatura: 0,
+            mostrarTwitter: false
         },
         created: function(){
-            var rng = new Math.seedrandom(new Date().getDate());
-            this.diaDeFruta = rng() > 0.5 ;
+            setTimeout(() => { 
+                this.mostrarTwitter = true;
+            }, 10000);
+
+            axios.get('http://api.openweathermap.org/data/2.5/weather?id=3435910&appid=67a7bb4ec34ff680fe22c6e0eccf1718&units=metric')
+            .then((respuesta) => {
+                return respuesta.data;
+            }).then((clima) => {
+                this.icono = clima.weather[0].icon;
+
+                return clima.main.temp;
+            }).then((temperatura) => {
+                this.temperatura = temperatura;
+
+                return this.transformarTemp(temperatura);
+            }).then((estado) => {
+                this.clase = estado.clase;
+                return estado.probabilidad;
+            }).then((probabilidad) => {
+                var rng = new Math.seedrandom(new Date().getDate());
+                this.diaDeFruta = rng() > probabilidad ;
+            });        
         },
         computed: {
             mensajeDiaDeFruta: function(){
                 return this.diaDeFruta ? "Si!!" : "no";
+            },
+            url: function(){
+                return `http://openweathermap.org/img/w/${this.icono}.png`;
+            },
+            temperaturaEnCelcius: function(){
+                return `${this.temperatura} ℃`;
+            }
+        },
+        methods: {
+            transformarTemp(temperatura){
+                if(temperatura < 10)
+                    return { clase: "frio", probabilidad: 1 };
+                if(temperatura > 30)
+                    return { clase: "calor", probabilidad: 0 };
+                return { clase: "medio", probabilidad: 0.5 };
             }
         }
     });
