@@ -124,7 +124,7 @@
                 this.mostrarTwitter = true;
             }, 10000);
 
-            axios.get('http://api.openweathermap.org/data/2.5/weather?id=3128760&appid=67a7bb4ec34ff680fe22c6e0eccf1718&units=metric')
+            axios.get('https://api.openweathermap.org/data/2.5/weather?id=3128760&appid=67a7bb4ec34ff680fe22c6e0eccf1718&units=metric')
             .then((respuesta) => {
                 return respuesta.data;
             }).then((clima) => {
